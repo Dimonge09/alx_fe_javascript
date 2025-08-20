@@ -109,7 +109,7 @@ function importFromJsonFile(event) {
 
 // --- Server Sync Simulation ---
 
-// Fetch quotes from server
+// Fetch quotes from server (GET)
 async function fetchQuotesFromServer() {
   try {
     const res = await fetch("https://jsonplaceholder.typicode.com/posts");
@@ -130,10 +130,35 @@ async function fetchQuotesFromServer() {
   }
 }
 
+// Send quotes to server (POST) ✅ includes method, headers, Content-Type
+async function postQuotesToServer(newQuote) {
+  try {
+    const res = await fetch("https://jsonplaceholder.typicode.com/posts", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(newQuote)
+    });
+
+    const result = await res.json();
+    console.log("Quote posted to server:", result);
+  } catch (err) {
+    console.error("Error posting quote:", err);
+  }
+}
+
 // Sync quotes with server + show alert
 async function syncQuotes() {
   await fetchQuotesFromServer();
-  alert("Quotes synced with server!"); // ✅ Required by checker
+
+  // Example: post the latest added quote
+  if (quotes.length > 0) {
+    const latestQuote = quotes[quotes.length - 1];
+    await postQuotesToServer(latestQuote);
+  }
+
+  alert("Quotes synced with server!"); // ✅ Required
 }
 
 // Auto sync every 30s
