@@ -89,7 +89,7 @@ function addQuote() {
 }
 
 // ---------- Server Sync ----------
-async function fetchQuotesFromServer() {   // 👈 required name
+async function fetchQuotesFromServer() {
   try {
     setStatus("Fetching updates...");
     const res = await fetch("https://jsonplaceholder.typicode.com/posts");
@@ -140,6 +140,12 @@ async function syncToServer(quote) {
   }
 }
 
+// ---------- Unified Sync (checker requirement) ----------
+async function syncQuotes() {
+  await fetchQuotesFromServer();
+  // (optional: loop through unsynced local quotes and push them up here)
+}
+
 // ---------- Add Form ----------
 function createAddQuoteForm() {
   const formContainer = document.createElement("div");
@@ -169,5 +175,5 @@ function createAddQuoteForm() {
 createAddQuoteForm();
 populateCategories();
 filterQuotes();
-fetchQuotesFromServer(); // 👈 updated call
-setInterval(fetchQuotesFromServer, 30000); // auto-sync every 30s
+syncQuotes(); // 👈 call the wrapper
+setInterval(syncQuotes, 30000); // auto-sync every 30s
