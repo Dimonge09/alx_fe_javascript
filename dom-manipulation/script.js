@@ -1,5 +1,5 @@
-// Quotes array
-const quotes = [
+// Load quotes from localStorage or use default
+let quotes = JSON.parse(localStorage.getItem("quotes")) || [
   { text: "The best way to get started is to quit talking and begin doing.", category: "Motivation" },
   { text: "Don’t let yesterday take up too much of today.", category: "Wisdom" },
   { text: "It’s not whether you get knocked down, it’s whether you get up.", category: "Resilience" }
@@ -7,25 +7,31 @@ const quotes = [
 
 const quoteDisplay = document.getElementById("quoteDisplay");
 const newQuoteBtn = document.getElementById("newQuote");
+const exportBtn = document.getElementById("exportJson");
+const importInput = document.getElementById("importFile");
+
+// Save quotes to localStorage
+function saveQuotes() {
+  localStorage.setItem("quotes", JSON.stringify(quotes));
+}
 
 // Show a random quote
 function showRandomQuote() {
   const randomIndex = Math.floor(Math.random() * quotes.length);
   const randomQuote = quotes[randomIndex];
 
-  // Clear previous content
   quoteDisplay.textContent = "";
-
-  // Create elements dynamically
   const quoteText = document.createElement("p");
   quoteText.textContent = randomQuote.text;
 
   const quoteCategory = document.createElement("span");
   quoteCategory.textContent = ` (${randomQuote.category})`;
 
-  // Append to display
   quoteDisplay.appendChild(quoteText);
   quoteDisplay.appendChild(quoteCategory);
+
+  // Save last viewed quote to sessionStorage
+  sessionStorage.setItem("lastQuote", JSON.stringify(randomQuote));
 }
 
 newQuoteBtn.addEventListener("click", showRandomQuote);
@@ -46,15 +52,12 @@ function createAddQuoteForm() {
 
   const addButton = document.createElement("button");
   addButton.textContent = "Add Quote";
-
   addButton.addEventListener("click", addQuote);
 
-  // Append inputs and button
   formContainer.appendChild(textInput);
   formContainer.appendChild(categoryInput);
   formContainer.appendChild(addButton);
 
-  // Add form to body
   document.body.appendChild(formContainer);
 }
 
@@ -70,18 +73,63 @@ function addQuote() {
 
   if (newQuote.text && newQuote.category) {
     quotes.push(newQuote);
+    saveQuotes();
 
-    // Show confirmation without innerHTML
     const confirmation = document.createElement("p");
     confirmation.textContent = "✅ New quote added!";
-    quoteDisplay.textContent = ""; // clear previous message/quote
+    quoteDisplay.textContent = "";
     quoteDisplay.appendChild(confirmation);
 
-    // Clear inputs
     textInput.value = "";
     categoryInput.value = "";
   }
 }
 
-// Call the form creation function when page loads
+// Export quotes to JSON file
+function exportToJsonFile() {
+  const dataStr = JSON.stringify(quotes, null, 2);
+  const blob = new Blob([dataStr], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "quotes.json";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+exportBtn.addEventListener("click", exportToJsonFile);
+
+// Import quotes from JSON file
+function importFromJsonFile(event) {
+  const fileReader = new FileReader();
+  fileReader.onload = function(e) {
+    const importedQuotes = JSON.parse(e.target.result);
+    quotes.push(...importedQuotes);
+    saveQuotes();
+    alert("✅ Quotes imported successfully!");
+  };
+  fileReader.readAsText(event.target.files[0]);
+}
+
+importInput.addEventListener("change", importFromJsonFile);
+
+// Restore last viewed quote from sessionStorage
+function showLastViewedQuote() {
+  const lastQuote = sessionStorage.getItem("lastQuote");
+  if (lastQuote) {
+    const quote = JSON.parse(lastQuote);
+    quoteDisplay.textContent = "";
+    const quoteText = document.createElement("p");
+    quoteText.textContent = quote.text;
+    const quoteCategory = document.createElement("span");
+    quoteCategory.textContent = ` (${quote.category})`;
+    quoteDisplay.appendChild(quoteText);
+    quoteDisplay.appendChild(quoteCategory);
+  }
+}
+
+// Initialize
 createAddQuoteForm();
+showLastViewedQuote();
