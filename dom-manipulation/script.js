@@ -89,14 +89,13 @@ function addQuote() {
 }
 
 // ---------- Server Sync ----------
-async function fetchFromServer() {
+async function fetchQuotesFromServer() {   // 👈 required name
   try {
     setStatus("Fetching updates...");
     const res = await fetch("https://jsonplaceholder.typicode.com/posts");
     const serverData = await res.json();
 
     // Simulate server returning quotes [{id, text, category, updatedAt}]
-    // For demo, map first 5 posts
     const serverQuotes = serverData.slice(0, 5).map((p, i) => ({
       id: p.id,
       text: p.title,
@@ -170,5 +169,5 @@ function createAddQuoteForm() {
 createAddQuoteForm();
 populateCategories();
 filterQuotes();
-fetchFromServer(); // fetch once on load
-setInterval(fetchFromServer, 30000); // auto-sync every 30s
+fetchQuotesFromServer(); // 👈 updated call
+setInterval(fetchQuotesFromServer, 30000); // auto-sync every 30s
