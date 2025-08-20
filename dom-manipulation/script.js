@@ -30,6 +30,34 @@ function showRandomQuote() {
 
 newQuoteBtn.addEventListener("click", showRandomQuote);
 
+// Create form dynamically
+function createAddQuoteForm() {
+  const formContainer = document.createElement("div");
+
+  const textInput = document.createElement("input");
+  textInput.id = "newQuoteText";
+  textInput.type = "text";
+  textInput.placeholder = "Enter a new quote";
+
+  const categoryInput = document.createElement("input");
+  categoryInput.id = "newQuoteCategory";
+  categoryInput.type = "text";
+  categoryInput.placeholder = "Enter quote category";
+
+  const addButton = document.createElement("button");
+  addButton.textContent = "Add Quote";
+
+  addButton.addEventListener("click", addQuote);
+
+  // Append inputs and button
+  formContainer.appendChild(textInput);
+  formContainer.appendChild(categoryInput);
+  formContainer.appendChild(addButton);
+
+  // Add form to body
+  document.body.appendChild(formContainer);
+}
+
 // Add new quote
 function addQuote() {
   const textInput = document.getElementById("newQuoteText");
@@ -44,4 +72,16 @@ function addQuote() {
     quotes.push(newQuote);
 
     // Show confirmation without innerHTML
-    const confirmation = do
+    const confirmation = document.createElement("p");
+    confirmation.textContent = "✅ New quote added!";
+    quoteDisplay.textContent = ""; // clear previous message/quote
+    quoteDisplay.appendChild(confirmation);
+
+    // Clear inputs
+    textInput.value = "";
+    categoryInput.value = "";
+  }
+}
+
+// Call the form creation function when page loads
+createAddQuoteForm();
